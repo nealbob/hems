@@ -79,4 +79,6 @@ end
 
 c0 = [0, 0, 0]              # opening carryover
 
-results = run_sim(100, n, β0, β1, βc0, βc1, tl, tu, cu, c0)
+@time begin
+    results = run_sim(500, n, β0, β1, βc0, βc1, tl, tu, cu, c0)
+end
