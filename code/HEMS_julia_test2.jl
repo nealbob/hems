@@ -29,10 +29,11 @@ end)
 
 q = @expression(model, [r in REGIONS], β0[r] + β1[r] * p[r])            # use
 E_p = @expression(model, [r in REGIONS], βc0[r] + βc1[r] * c[r])        # expected prices
+xs = @expression(model, [r in REGIONS], A[r] + t[r] - c[r] - q[r])      # excess supply 
 
 @constraints(model, begin
     [r in REG_2n], p[1] - p[r] ⟂ t[r]                                   # equalise prices st trade constraints
-    [r in REGIONS], A[r] + t[r] - c[r] - q[r] ⟂ p[r]                    # demand = supply st price > 0
+    [r in REGIONS], xs[r] ⟂ p[r]                                        # demand = supply st price > 0
     [r in REGIONS], p[r] - E_p[r] ⟂ c[r]                                # current price = future price st carryover > 1
     sum(t) ⟂ t[1]                                                       # sum trade = 0 (use t[1] as complement)
 end)
@@ -43,14 +44,12 @@ solution_summary(model; verbose=true)
 
 # print the results
 
-p = value.(p)
-t = value.(t)
-c = value.(c)
-q = β0 + β1.*p 
-xs = A + t - q - c
-
-p = p.data; t=t.data; q=q.data; xs=xs.data; c=c.data;
-
-result = DataFrame("Region"=>REGIONS, "Price"=>p, "Trade"=>t,  "Supply"=>A, "Use"=>q, "Carryover"=>c, "Excess supply"=>xs)
+result = DataFrame("Region"=>REGIONS, 
+                   "Price"=>value.(p).data, 
+                   "Trade"=>value.(t).data,
+                   "Supply"=>A,
+                   "Use"=>value.(q).data,
+                   "Carryover"=>value.(c).data,
+                   "Excess supply"=>value.(xs).data)
 
 print(result)
