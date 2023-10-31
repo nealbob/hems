@@ -77,7 +77,7 @@ function run_sim(T, n, β, βc, tr_l, c_l)
     for t in 1:T
 
         a = rand(3)*5                     # random allocation between 0 and 5
-
+        
         results = solve_market(n, β, βc, tr_l, c_l, a, t, T, results)
         
     end
@@ -85,9 +85,9 @@ function run_sim(T, n, β, βc, tr_l, c_l)
     return results
 end
 
-function sgd_update(βc, results, n, T, i, ΔQ)
+function sgd_update(results, n, T, i, βc_a)
    
-    η = 0.5* (1 / (1 + 0.5*i))
+    η = (1 / (1 + 0.4*i))
     
     for r in 1:n
         X = Array{Float64}(undef, T, 2) 
@@ -95,33 +95,36 @@ function sgd_update(βc, results, n, T, i, ΔQ)
         X[:,2] .= results[results.Region.==r, :Carryover]
         Y = results[results.Region.==r, :Price]
         
-        Ŷ = X * βc[:,r]
+        Ŷ = X * βc_a[i-1, :,r]
         ϵ = Y - Ŷ
-        ΔQ[i, :, r] = transpose(sum((ϵ .* X) ./ T, dims=1))
+        ΔQ = transpose(sum((ϵ .* X) ./ T, dims=1))
         
-        βc[:, r] = βc[:, r] + η * ΔQ[i, :, r] 
+        βc_a[i, :, r] = βc_a[i-1, :, r] + η * ΔQ 
     end 
 
-    return βc, ΔQ   
+    return βc_a   
 end
 
 function calibrate_model(T, I, n, β, βc, tr_l, c_l)
 
-    ΔQ = Array{Float64}(undef, I, 2, n)
-    
-    for i in 1:I
+    βc_a = Array{Float64}(undef, I, 2, n)
+    βc_a[1, :, :] = βc
+
+    for i in 2:I
         
-        results = run_sim(T, n, β, βc, tr_l, c_l)
+        results = run_sim(T, n, β, βc_a[i-1,:,:], tr_l, c_l)
         
-        βc, ΔQ = sgd_update(βc, results, n, T, i, ΔQ)
+        βc_a = sgd_update(results, n, T, i, βc_a)
         
     end
-    return βc, ΔQ
+    return βc_a
 end
 
-βc, ΔQ = calibrate_model(200, 100, n, β, βc, tr_l, c_l)
+βc_a = calibrate_model(100, 30, n, β, βc, tr_l, c_l)
 
-plot(ΔQ[:, 2, 3])
+@time βc_a = calibrate_model(100, 30, n, β, βc, tr_l, c_l)
+
+#plot(βc_a[:, 2, 3])
 
 #results = run_sim(1000, n, β, βc, tr_l, c_l)
 
