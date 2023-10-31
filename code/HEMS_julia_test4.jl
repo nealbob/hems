@@ -4,6 +4,7 @@
     PLUS carryover into the next period
     Set up as an MCP and solve for equilbirum prices and net trade volumes
     PLUS solve the model many times in a loop / sequence
+    !! PLUS calibrate expected prices
 =#
 
 using JuMP, PATHSolver, DataFrames, Random, Plots
@@ -122,21 +123,6 @@ end
 
 βc_a = calibrate_model(100, 30, n, β, βc, tr_l, c_l)
 
-@time βc_a = calibrate_model(100, 30, n, β, βc, tr_l, c_l)
+#@time βc_a = calibrate_model(100, 30, n, β, βc, tr_l, c_l)
 
 #plot(βc_a[:, 2, 3])
-
-#results = run_sim(1000, n, β, βc, tr_l, c_l)
-
-#=
-results = run_sim(100, n, β, βc, tr_l, c_l)
-
-@profview  results = run_sim(10, n, β, βc, tr_l, c_l)
-
-@profview  results = run_sim(1000, n, β, βc, tr_l, c_l)
-
-@time results = run_sim(50, n, β, βc, tr_l, c_l)
-
-@time results = run_sim(10000, n, β, βc, tr_l, c_l)
-=#
-
