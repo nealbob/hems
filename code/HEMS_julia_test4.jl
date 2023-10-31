@@ -6,14 +6,14 @@
     PLUS solve the model many times in a loop / sequence
 =#
 
-using JuMP, PATHSolver, DataFrames, Random
+using JuMP, PATHSolver, DataFrames, Random, Plots
 
 # initial parameters
 n = 3                               # Number of regions
 β = [10.0 5.0 7.5;                  # demand function parameters (X by region)
     -0.5 -0.25 -0.25]
-βc = [0.0 10.0 0.0;                 # future price function parameters (X by region)
-      0.0 -5.0 0.0]              
+βc = [5.0 10.0 5.0;                 # future price function parameters (X by region)
+      -2.0 -3.0 -2.0]              
 tr_l = [-10e100 -2.0 -1.0;          # trade limits (min-max by region) 
         10e100 0.5 0.5]             
 c_l = [0.0 0.0 0.0;                 # carryover limits (min-max by regio`n)
@@ -85,6 +85,47 @@ function run_sim(T, n, β, βc, tr_l, c_l)
     return results
 end
 
+function sgd_update(βc, results, n, T, i, ΔQ)
+   
+    η = 0.5* (1 / (1 + 0.5*i))
+    
+    for r in 1:n
+        X = Array{Float64}(undef, T, 2) 
+        X[:,1] .= 1.0
+        X[:,2] .= results[results.Region.==r, :Carryover]
+        Y = results[results.Region.==r, :Price]
+        
+        Ŷ = X * βc[:,r]
+        ϵ = Y - Ŷ
+        ΔQ[i, :, r] = transpose(sum((ϵ .* X) ./ T, dims=1))
+        
+        βc[:, r] = βc[:, r] + η * ΔQ[i, :, r] 
+    end 
+
+    return βc, ΔQ   
+end
+
+function calibrate_model(T, I, n, β, βc, tr_l, c_l)
+
+    ΔQ = Array{Float64}(undef, I, 2, n)
+    
+    for i in 1:I
+        
+        results = run_sim(T, n, β, βc, tr_l, c_l)
+        
+        βc, ΔQ = sgd_update(βc, results, n, T, i, ΔQ)
+        
+    end
+    return βc, ΔQ
+end
+
+βc, ΔQ = calibrate_model(200, 100, n, β, βc, tr_l, c_l)
+
+plot(ΔQ[:, 2, 3])
+
+#results = run_sim(1000, n, β, βc, tr_l, c_l)
+
+#=
 results = run_sim(100, n, β, βc, tr_l, c_l)
 
 @profview  results = run_sim(10, n, β, βc, tr_l, c_l)
@@ -94,26 +135,5 @@ results = run_sim(100, n, β, βc, tr_l, c_l)
 @time results = run_sim(50, n, β, βc, tr_l, c_l)
 
 @time results = run_sim(10000, n, β, βc, tr_l, c_l)
+=#
 
-
-
-function sgd_update(βc, results, n, T, i)
-   
-    η = 1 / (1 + i)
-
-    for r in 1:n
-        X = Array{Float64}(undef, T, 2) 
-        X[:,1] .= 1.0
-        X[:,2] .= results[results.Region.==r, :Carryover]
-        Y = results[results.Region.==r, :Price]
-        
-        Ŷ = X * βc[:,r]
-        ϵ = Y - Ŷ
-        ΔQ = transpose(sum((ϵ .* X) ./ T, dims=1))
-        
-        βc[:, r] = βc[:, r] + η * ΔQ 
-    end 
-
-
-    return β    
-end
