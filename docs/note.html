@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Neal Hughes, April Zhao" />
+  <meta name="dcterms.date" content="2023-11-01" />
+  <title>Monthly timestep economic model of the southern MDB</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Monthly timestep economic model of the southern
+MDB</h1>
+<p class="author">Neal Hughes, April Zhao</p>
+<p class="date">1 November 2023</p>
+</header>
+<h1 id="intro">Introduction</h1>
+<p>This is a work in progress technical note detailing the potential
+set-up of a new monthly time-step economic model of irrigation activity,
+water demand and water trade in southern Murray-Darling Basin (MDB).
+This model would be an extension of the previous annual time-step model
+<a
+href="https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2022WR032559"><span
+class="citation" data-cites="hughes2023economic">Hughes et al.
+(2023)</span></a></p>
+<p>This model extends the previous version in a number of ways:</p>
+<ul>
+<li>Monthly time-step rather than annual</li>
+<li>Includes estimates of physical water demand (monthly river
+diversions)</li>
+<li>Adds bio-physical water demand detail (i.e., evapotranspiration,
+soil moisture) similar to hydrological models</li>
+<li>Structural economic model (i.e., profit maximization) rather than
+pure reduced-form</li>
+</ul>
+<p>The model structure is an attempt to merge the bio-physical approach
+to water demand adopted in daily time-step hydrological models (such as
+the MDBA Murray source model) with a typical structural economic set-up
+(i.e., optimisation of profit subject to water and land constraints),
+while still keeping it relatively simple (i.e., small number of
+parameters) so that it can be fit to observed data.</p>
+<p>Some useful background:</p>
+<p><a
+href="https://www.mdba.gov.au/sites/default/files/publications/crop-water-model-murray-lower-darling-2018.pdf">The
+MDBA Murray / source water demand models</a></p>
+<p><a href="https://www.fao.org/3/X0490E/x0490e00.htm">Allen et
+al. (1998)</a></p>
+<p><a
+href="https://wiki.ewater.org.au/display/SD520/Irrigator+Demand+Model+-+SRG">eWater
+source documentation</a></p>
+<p><a
+href="https://www.mdba.gov.au/sites/default/files/publications/irrigated-crop-area-data-for-the-lower-murray-darling-2003-to-2021.pdf">MDBA
+irrigation area data</a></p>
+<p><a
+href="https://govteams.sharepoint.com/sites/hemshydroeconomicmodellingforthesouthernmdb">ABARES-UoM
+GovTeams site for HEMS</a></p>
+<h1 id="variables-and-parameters">Variables and parameters</h1>
+<h2 id="endogenous-variables">Endogenous variables</h2>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Units</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(W_{ijt}\)</span></td>
+<td>ML</td>
+<td>Water use in region <span class="math inline">\(i\)</span> for crop
+<span class="math inline">\(j\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(L_{ijt}\)</span></td>
+<td>Ha</td>
+<td>Area of crop <span class="math inline">\(j\)</span> irrigated in
+region <span class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\bar L_{ijt}\)</span></td>
+<td>Ha</td>
+<td>Potential area ‘set-up’ for crop <span
+class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(Y_{ijt}\)</span></td>
+<td>t</td>
+<td>Quantity of production (i.e., yield<span
+class="math inline">\(\times\)</span>area) for crop <span
+class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(D_{it}\)</span></td>
+<td>ML</td>
+<td>River diversions in region <span class="math inline">\(i\)</span> in
+period <span class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P^w_{it}\)</span></td>
+<td>$ / ML</td>
+<td>Market price for water allocations in region <span
+class="math inline">\(i\)</span> period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(A_{it}\)</span></td>
+<td>ML</td>
+<td>Water allocations available for use (unused water) in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(T_{it}\)</span></td>
+<td>ML</td>
+<td>Net water allocation trade (import) in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(U_{it}\)</span></td>
+<td>ML</td>
+<td>Usage of water allocation in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\tilde W_{it}\)</span></td>
+<td>ML</td>
+<td>Net other water usage in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="exogenous-derived-variables">Exogenous / derived variables</h2>
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Units</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(ET^0_{it}\)</span></td>
+<td>mm</td>
+<td>Reference evapotranspiration for region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\({ER}_{t}\)</span></td>
+<td>mm</td>
+<td>Effective rainfall in region <span class="math inline">\(i\)</span>
+in period <span class="math inline">\(t\)</span> (excluding estimated
+run-off)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(w_{ijt}\)</span></td>
+<td>ML / Ha</td>
+<td>Water application rate for crop <span
+class="math inline">\(j\)</span> region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P^y_{jt}\)</span></td>
+<td>$ / t</td>
+<td>Output price for crop <span class="math inline">\(j\)</span> in
+period <span class="math inline">\(j\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\Delta A_{it}\)</span></td>
+<td>ML</td>
+<td>New water allocations announced in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(a_{it}\)</span></td>
+<td>ML</td>
+<td>Annual water allocation percentage in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(E_{it}\)</span></td>
+<td>ML</td>
+<td>Water entitlement volume (available for consumptive use) in region
+<span class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="known-derived-parameters">Known / derived parameters</h2>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(K^c_{jm}\)</span></td>
+<td>Crop coefficient (monthly evapotranspiration factor) for crop <span
+class="math inline">\(j\)</span> in month <span
+class="math inline">\(m\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(k^c_{jm}\)</span></td>
+<td>Relative crop coefficient</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(k^s_{ijt}\)</span></td>
+<td>Potential water stress for crop <span
+class="math inline">\(j\)</span> in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="unknown-parameters-to-be-estimated">Unknown parameters (to be
+estimated)</h2>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\beta^w_{ij}\)</span></td>
+<td>Crop water requirements parameter</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta^s_{ij}\)</span></td>
+<td>Crop water stress response parameter</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta^y_{ij}\)</span></td>
+<td>Crop yield response (maximum potential crop yield)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta^l_{ij}\)</span></td>
+<td>Crop yield response</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta^{c0}_{ij}\)</span></td>
+<td>Annual cost per Ha of crop planted</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta^{c1}_{ij}\)</span></td>
+<td>Cost of water use per ML (i.e. delivery cost)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta^{d0}_{i}\)</span></td>
+<td>Minimum (non-irrigation) water diversions</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta^{d1}_{i}\)</span></td>
+<td>Diversions response to irrigation water use</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta^{\tilde w0}_{i}\)</span>, <span
+class="math inline">\(\beta^{\tilde w1}_{i}\)</span></td>
+<td>Parameters for the net benefit of other water use function</td>
+</tr>
+</tbody>
+</table>
+<h1 id="data">Data</h1>
+<ul>
+<li>For now regions can be the same as the previous ABARES model regions
+(catchment areas)</li>
+<li>Crop types would be the same as previous ABARES model except with
+Other cereals, Other broadacre and Other crops combined into a single
+category</li>
+<li>Crop coefficients could be the ones from QJ’s study
+<ul>
+<li>For Rice we can add some soil moisture targets as follows:
+<ul>
+<li>50 mm in the crop planting month (October)</li>
+<li>-50mm in the last month (March)</li>
+</ul></li>
+</ul></li>
+<li>Annual data for <span class="math inline">\(W\)</span>, <span
+class="math inline">\(L\)</span>, <span
+class="math inline">\(Y\)</span>, <span
+class="math inline">\(P^y\)</span> and <span
+class="math inline">\(P^w\)</span> by region and crop can come from the
+ABARES catchment dataset. Some modifications may be required:
+<ul>
+<li>Aggregating other cereals/broadacre and crops</li>
+<li>For Pasture we could try setting <span
+class="math inline">\(Y\)</span> to 1, and <span
+class="math inline">\(P^y\)</span> equal to a fodder price index</li>
+<li>For other crops we could set <span
+class="math inline">\(P_y\)</span> to the price of wheat, then divide
+GVIAP for these activities by <span class="math inline">\(P_y\)</span>
+to derive a quantity index….</li>
+</ul></li>
+<li>Monthly ET and ER data to be provided by UoM. Hoping UoM can also
+provide run-off data which we can subtract from ER.</li>
+<li>Monthly data on water usage <span class="math inline">\(U\)</span>
+to come from state water accounting data (still not yet available for
+SA)
+<ul>
+<li>Still yet to confirm if this usage includes usage against
+environmental entitlements</li>
+</ul></li>
+</ul>
+<h1 id="model-equations">Model equations</h1>
+<p>The model is defined over three sets: regions <span
+class="math inline">\(i\)</span>, irrigation crops <span
+class="math inline">\(j\)</span> and time <span
+class="math inline">\(t\)</span>. The time-step is monthly, although
+some variables operate at an annual time-step (i.e., crop production and
+profit). Further some monthly variables (such as water use) may only
+have data available at an annual time-step.</p>
+<p>Below <span class="math inline">\(t\)</span> is used interchangeably
+to refer to annual or monthly depending on the context. Where monthly
+data is summed to generate annual data, this is denoted as <span
+class="math inline">\(\sum_m\)</span> where <span
+class="math inline">\(m\)</span> is used to index the months of the
+year.</p>
+<p>Sometimes where we refer to months across the cropping season within
+a single year we denote the crop planting month <span
+class="math inline">\(t=m\)</span> and the crop harvest month <span
+class="math inline">\(t=h\)</span>.</p>
+<p>We define the set of all crop types <span
+class="math inline">\(J\)</span>, the set of perennial crops <span
+class="math inline">\(\bar J\)</span>, annual <span
+class="math inline">\(\dot J\)</span> and opportunistic crops <span
+class="math inline">\(\tilde J\)</span>.</p>
+<h2 id="water-demand">Water demand</h2>
+<h3 id="crop-water-requirements">Crop water requirements</h3>
+<p>Following standard hydrological approaches short-term crop water
+requirements are determined by bio-physical drivers. Specifically,
+target (i.e., maximum) water application rates <span
+class="math inline">\(w_{ijt}\)</span> for crop <span
+class="math inline">\(i\)</span> in region <span
+class="math inline">\(i\)</span> in period <span
+class="math inline">\(t\)</span> are a function of potential crop
+evapotranspiration (ET) and effective rainfall <span
+class="math inline">\(ER_{it}\)</span>:</p>
+<p><span class="math display">\[w_{ijt} = \frac{1}{100}.\beta^{w}_{ijt}
+\max \left({K^c_{jm}ET^0_{it} - ER_{it},   }, 0\right) \]</span></p>
+<p>Here <span class="math inline">\(K^c_{ijt}\)</span> are pre-defined
+‘crop coefficients’ and <span class="math inline">\({ET}^0_{it}\)</span>
+is the reference ET for region <span class="math inline">\(i\)</span> in
+period <span class="math inline">\(t\)</span> (with both <span
+class="math inline">\(ET^0_{ijt}\)</span>, and <span
+class="math inline">\({ER}_{it}\)</span> being exogenous functions of
+weather data). Following hydrological model conventions, crop water
+requirements <span class="math inline">\(K^c_{jm}ET^0_{ijt} -
+ER_{it}\)</span> are defined in mm units (and converted to ML by
+dividing by 100).</p>
+<p>This approach differs from official hydrological models (i.e., Murray
+SOURCE model) in two key respects: the time-step is monthly rather than
+daily and there is no explicit soil moisture balance. While recent
+research (QJ etc.) has shown this simple approach can achieve reasonable
+performance, some adjustments are adopted to improve accuracy further.
+Firstly, ER data used adjusted to remove estimated monthly run-off.
+Secondly, for rice crops water requirements are adjusted to account for
+poundage, by adding a soil moisture recharge / depletion target:</p>
+<p><span class="math display">\[w_{ijt} = \frac{1}{100}.\beta^{w}_{ijt}
+\max \left({K^c_{jm}ET^0_{it} + SM_{jt} - ER_{it},   }, 0\right)
+\]</span></p>
+<p>Note that this approach does not allow for deficit irrigation where
+water application rates are less than the target rate <span
+class="math inline">\(w_{ijt}\)</span>. However, as detailed below there
+is flexibility to vary the area irrigated (to only irrigate a portion of
+the planted area) as outlined below.</p>
+<h3 id="crop-areas-and-production">Crop areas and production</h3>
+<p>Marginal crop productivity (i.e., marginal crop yield in t / ha) is
+assumed to be linearly decreasing in area planted. Production (t) is the
+integral of marginal crop yield with respect to area planted, such that
+crop production is a quadratic function <span
+class="math inline">\(f^y_{ij}\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}f^y_{ij} \left(L_{ijt}
+\right)  &amp;= \int_0^{L_{ijt}}\beta^y_{ij} \left(1 - \frac{
+L_{ijt}}{\beta^l_{ij}\bar L_{ijt}} \right)\\
+                                                &amp; = \beta^y_{ij}
+\left({L_{ijt}} - \frac{L^2_{ijt}}{2.\beta^l_{ij}\bar L_{ijt}}  \right)
+\end{aligned}\]</span></p>
+<p>This quadratic relationship ensures both that short-run water demands
+are downward sloping (i.e., decreasing in water prices) and that each
+region plants a realistic variety of crop types (rather than planting
+all land to the single most profitable crop). Here <span
+class="math inline">\(\bar L_{ijt}\)</span> reflects the maximum
+potential area available / set-up for crop type <span
+class="math inline">\(i\)</span> in region <span
+class="math inline">\(j\)</span> in period <span
+class="math inline">\(t\)</span>.</p>
+<h4 id="perennial-crops">Perennial crops</h4>
+<p>Crop types <span class="math inline">\(j\)</span> belong to one of
+three categories: perennials, annuals (summer crops) or ‘opportunistic’.
+For perennials (i.e., fruit and nut trees, wine grapes) area planted is
+assumed fixed for all <span class="math inline">\(t\)</span> but the
+area irrigated <span class="math inline">\(L^w_{ijt}\)</span> can be
+varied each month:</p>
+<p><span class="math display">\[\bar L_{ijt} = L_{ijt} \]</span> <span
+class="math display">\[W_{ijt} = L^w_{ijt} w_{ijt} \]</span> <span
+class="math display">\[L^w_{ijt} \leq L_{ijt} \]</span></p>
+<p>Any crop areas not irrigated are subject to water stress and yield
+penalties. A linear crop yield response to water stress is adopted
+similar to that in hydrological models (Source User Guide, Allen et
+al. 1998). Here water stress (for any land not irrigated) <span
+class="math inline">\(k^s_{ijt}\)</span> is increasing in ET and
+decreasing in effective rainfall, with <span
+class="math inline">\(k^s_{ijt}\)</span> = 0, if <span
+class="math inline">\(ER_{it} \geq K^c_{jm}ET^0_{ijt}\)</span>:</p>
+<p><span class="math display">\[k^s_{ijt} = \beta^s_{ij}\left(1 -
+\frac{\min\left[ER_{it}, K^c_{jm}ET^0_{it}\right]} {K^c_{jm}ET^0_{it}}
+\right) \]</span></p>
+<p>As detailed below, annual production for each irrigated crop is a
+function of both area planted <span
+class="math inline">\(L_{ijt}\)</span> and any monthly water stress. In
+the absence of water stress (<span class="math inline">\(L_{ijt} =
+L_{ijt}^w\)</span> and <span class="math inline">\(k^s_{ijt} =
+0\)</span> for all <span class="math inline">\(t\)</span>) crop
+production <span class="math inline">\(Y_{ijt} = f^y_{ij}
+\left(L_{ijt}\right)\)</span>. In any months with water stress crop
+penalties proportional to <span
+class="math inline">\(k^{s}_{ijt}\)</span> are incurred. Note the below
+approach simplifies the standard (Allen et al. 1998) approach slightly
+by assuming water stress in each month has an independent additive
+effect on yields (ensuring that short-run crop yield responses and water
+demands are independent of past &amp; future months):</p>
+<p><span class="math display">\[\begin{aligned} y_{ijt} &amp;=
+\sum_m  k_{mj} \Big(  f^y_{ijt} \left(L^w_{ijt} \right) + \left(1 -
+k_{ijt}^s \right)  \Big( f^y_{ijt} \left(L_{ijt} \right) - f^y_{ijt}
+\left(L^w_{ijt} \right) \Big)\Big) \\
+                          &amp;= f^y_{ij} \left(L_{ijt}\right) -
+\sum_m  k_{mj} .k^{s}_{ijt}  \left( f_{ijt}^y \left(L_{ijt} \right) -
+f_{ijt}^y \left(L^w_{ijt} \right) \right)
+                          \end{aligned}\]</span></p>
+<p><span class="math display">\[ Y_{ijt} = \max \left[ y_{ijt}, 0
+\right], Y&#39;_{ijt} = \min \left[ y_{ijt}, 0 \right] \]</span></p>
+<p><span class="math display">\[k_{mj} = \left( \frac{K^c_{jm}}{\sum_m
+K^c_{jm}} \right), \sum_m k_{mj} = 1\]</span></p>
+<p>Here an allowance is also made for ‘carryover yield’ penalties: where
+water stress is severe enough to impact future yields (e.g., damage tree
+crops). In these cases <span class="math inline">\(\beta^s_{ij}\)</span>
+(and therefore <span class="math inline">\(k^s_{ijt}\)</span>) can be
+greater than 1 and <span class="math inline">\(\tilde Y_{ijt}\)</span>
+can be negative. Here <span class="math inline">\(Y&#39;_{ijt}\)</span>
+can be interpreted as a penalty representing (expected discounted)
+future lost production (and/or related costs such as re-planting etc.)
+due to current season water stress.</p>
+<h4 id="opportunistic-crops">Opportunistic crops</h4>
+<p>With opportunistic activities (e.g., pasture, hay, vegetables, hay
+and other crops) the extent of irrigation <span
+class="math inline">\(L^w_{ijt}\)</span> can vary on a monthly basis,
+subject to a fixed annual upper limit <span class="math inline">\(\bar
+L_{ijt}\)</span>. In the case of pasture and winter crops for example,
+the upper limit can be viewed as the total area planted and able to be
+irrigated (of which in any month some proportion may be irrigated and
+some proportion dry-land).</p>
+<p>From a model perspective, these activities operate more or less
+identically to perennial crops as outlined above, accept that <span
+class="math inline">\(\bar L_{ijt}\)</span> is not defined by observed
+<span class="math inline">\(L_{ijt}\)</span> data but an assessment of
+potential irrigable area (and observed annual irrigation area data is
+assumed to reflect the maximum of monthly area irrigated over the year:
+<span class="math inline">\(\max_{m \in t} L^w_{ijt}\)</span>).</p>
+<p><span class="math display">\[\bar L_{ijt} \geq L_{ijt} \]</span>
+<span class="math display">\[W_{ijt} = L^w_{ijt} w_{ijt} \]</span> <span
+class="math display">\[L^w_{ijt} \leq \bar L_{ijt} \]</span> <span
+class="math display">\[L_{ijt} = \max_{m \in t} L^w_{it}\]</span></p>
+<h4 id="annual-summer-crops">Annual (summer) crops</h4>
+<p>For annual (summer) crops (e.g., rice and cotton), area planted is
+chosen each year in a defined planting month, <span
+class="math inline">\(m\)</span>. After planting (up until the harvest
+month <span class="math inline">\(h\)</span>) crop areas can be reduced
+but not increased (i.e., parts of the planted area can be abandoned),
+such that:</p>
+<p><span class="math display">\[Y_{ij,t} = f^y_{ij}
+\left(L_{ij,h}\right)\]</span> <span class="math display">\[L_{ij,h}
+\leq L_{ij, h-1} \leq ...  \leq L_{ij,m} \leq \bar L_{ijt}\]</span></p>
+<h3 id="water-supply">Water supply</h3>
+<p><span class="math display">\[A_{i,t+1} = A_{it} + \Delta A_{it} -
+U_{it} + T_{it} - F_{it}\]</span></p>
+<p><span class="math display">\[\Delta A_{it} = \sum_h (a_{hi,t+1} -
+a_{hit}).E_{hit}\]</span></p>
+<p><span class="math display">\[U_{it} = \sum_j W_{jit} + \tilde
+W_{it}\]</span></p>
+<p>More to be added.</p>
+<h3 id="diversions">Diversions</h3>
+<p>Regional monthly diversions are a linear function of total water
+allocation use, with the parameters helping to account for additional
+sources of diversions (i.e., delivery losses, urban / non-regulated
+water use) in each region.</p>
+<p><span class="math display">\[D_{it} = \beta^{d0}_{im} +
+\beta^{d1}_{im} U_{it}\]</span></p>
+<h3 id="farm-profits">Farm profits</h3>
+<p>Annual profits from irrigation water use <span
+class="math inline">\(\pi_{it}\)</span> in region <span
+class="math inline">\(i\)</span> in year <span
+class="math inline">\(t\)</span> are defined as:</p>
+<p><span class="math display">\[ \pi_{it} = \sum_j P^y_{jt}.y_{ijt} -
+\sum_j \beta^{c0}_{jt}L&#39;_{ijt} - \sum_j \sum_{m \in t}(P^w_{it} +
+\beta^{c1}_{ij}) W_{ijm} + f^{\tilde w}(\tilde W_{it}) - {P}^{w}
+\tilde{W}_{it} \]</span></p>
+<p><span class="math display">\[ f^{\tilde w} \left( \tilde W_{it}
+\right) =  \beta^{\tilde w0}_{im}\tilde W_{it} -
+\frac{1}{2}\beta^{\tilde w1}_{i}\tilde W_{it}^2\]</span></p>
+<p><span class="math display">\[L&#39;_{ijt} = \begin{cases}
+            \bar L_{ijt} &amp; \text{if $j \in \bar J, \tilde J$};\\
+            L_{ijm} &amp; \text{if $j \in \dot J$}
+            \end{cases}\]</span></p>
+<p>Here regional profits <span class="math inline">\(\pi_{it}\)</span>
+are equal to revenue from crop production less costs: including annual
+area-based costs <span class="math inline">\(\beta^{c0}_{jt}\)</span>
+and monthly water costs. Annual area-based costs are incurred at the
+time of planting in the case of annual crops, and are fixed annual costs
+in the case of perennials. Water costs include both the market price of
+water <span class="math inline">\(P^w_{it}\)</span> and any usage /
+delivery costs <span class="math inline">\(\beta^{c1}_{ij}\)</span>.</p>
+<p>Note that profits are defined net of any yield penalties <span
+class="math inline">\(P^y_{jt}Y&#39;_{ijt}\)</span> (which are embedded
+in the term <span class="math inline">\(\sum_j
+P^y_{jt}.y_{ijt}\)</span>).</p>
+<p>In addition, profits include the net benefits of ‘other water use’
+<span class="math inline">\(f^{\tilde w}\)</span>. Other water use
+reflects allocation use beyond that applied to crops (for example water
+placed into on-farm storages, or used for non-agricultural purposes).
+Other water use can also be negative, in which case it reflects water
+taken from other sources (e.g., groundwater, farm dams) and applied to
+crops (in this case <span class="math inline">\(f^{\tilde w}\)</span>
+reflects the costs of extracting these alternative water sources).</p>
+<h1 id="estimation">Estimation</h1>
+<h2 id="parameter-starting-values">Parameter starting values</h2>
+<p>Most of the model parameters have simple interpretations and logical
+starting values:</p>
+<ul>
+<li><span class="math inline">\(\beta^l_{ij} \geq 1\)</span> (perhaps
+start with 2, noting that any values less than 1 imply that the true
+maximum area is less than <span class="math inline">\(\bar
+L\)</span>)</li>
+<li><span class="math inline">\(\beta^w_{ij} = 1\)</span> (or could be
+estimated from historical data such that <span
+class="math inline">\(w_{ijt} \geq W_{ijt} / L_{ijt}\)</span>)</li>
+<li><span class="math inline">\(\beta^s_{ij} = 1\)</span> (perhaps 2 for
+perennials to allow for some yield penalties)</li>
+<li><span class="math inline">\(\beta^y_{ij}\)</span> can be set using
+historical data such that <span class="math inline">\(\beta^y_{ijt} &gt;
+Y_{ijt} / L_{ijt}\)</span> (perhaps 1.5 * maximum observed yield)</li>
+<li><span class="math inline">\(\beta^{c0}, \beta^{c1}\)</span> could be
+estimated from irrigation survey data via a cost regression (i.e., total
+cash costs against crop areas and water use)</li>
+<li>Starting values for <span class="math inline">\(\beta^{d0}_{im},
+\beta^{d1}_{im}\)</span> could be obtained by OLS regression of
+diversion and allocation use data.</li>
+<li>Starting values for <span class="math inline">\(\beta^{\tilde
+w0}_{im}, \beta^{\tilde w1}_{im}\)</span> could be obtained by OLS
+regression of annual ‘other water’ estimates</li>
+</ul>
+<h2 id="econometric-estimation">Econometric estimation</h2>
+<p>Once a set of starting values have been obtained, parameter estimates
+could then be obtained by deriving the model reduced-form / first order
+conditions, and then fitting this system of equations to the available
+historical data (i.e., find the set of parameters which minimises the
+sum of squared residuals).</p>
+<h3 id="model-reduced-form">Model reduced form</h3>
+<p>With the inclusion of yield penalties the profit function can be
+defined as:</p>
+<p><span class="math display">\[\begin{aligned}\pi_{it} = \sum_j
+P^y_{jt}\left(\sum_m  k_{mj} \Big(  \left(1 - k_{ijt}^s \right) f_{ijt}
+\left(L_{ijt} \right)  +  k^s_{ijt}f_{ijt} \left(L^w_{ijt} \right)
+\Big)\right) - \\
+\sum_j \Big(\beta^{c0}_{ij}L&#39;_{ijt} + (P^w_{it} + \beta^{c1}_{ij})
+W_{ijt}\Big)  + f^{\tilde w}(\tilde W_{ij}) - P^w \tilde W_{it}
+\end{aligned}\]</span></p>
+<ul>
+<li>Water use FOC / short-run water demand function (perennials and
+opportunistic):</li>
+</ul>
+<p><span class="math display">\[{\frac{\partial \pi_{it}}{\partial
+W_{ijm}}} = 0 \]</span></p>
+<p><span class="math display">\[P_{im}^w + \beta^{c1}_{ijm} = \left(
+\frac{P^y_{jt} k_{mj}\beta^y_{ij}k^s_{ijm}}{w_{ijm} }\right)\left( 1 -
+\frac{W_{ijt}}{\beta_{ij}^l\bar L_{ijt} w_{ijm} } \right)\]</span></p>
+<p><span class="math display">\[W_{ijm} =  w_{ijm} \beta_{ij}^l\bar
+L_{ijt}\left(1- \frac{(P_{it}^w + \beta^{c1}_{ijm}) w_{ijt}}{P^y_{jt}
+k_{mj}\beta^y_{ij} k^s_{ijm}} \right)\]</span></p>
+<p><span class="math display">\[0 \leq W_{ijt} \leq \bar L_{ijt}w_{ijm}
+\]</span></p>
+<ul>
+<li>Water use FOC / short-run water demand function (annuals):</li>
+</ul>
+<p><span class="math display">\[\frac{\partial \pi_{it}}{\partial
+L_{ijs}} = 0 \text{ and } L_{ijs} \leq L_{ij,s-1} \leq \bar L_{ijt}
+\]</span></p>
+<p><span class="math display">\[\mathbf{E}_{t=s} \left[
+\sum_{t=s}^h  {w_{ijt}}(\beta^{c1}_{ij} + P^w_{it} )  \right]=
+\mathbf{E}_{t=s}\left[ P^y_{jt}\beta^y_{ij}   \left(1 -
+{L_{ijh}}.\frac{1}{\beta^l_{ij} \bar L_{ijt}}\right)  \mid
+L_{ijs}\right] \]</span></p>
+<p><span class="math display">\[ \sum_{t=s}^h  \mathbf{E}
+\left[{w_{ijt}}  (\beta^w_{ij} + P^s_{it} ) \right
+].(1-\Pr[L_{ijt}&lt;L_{ijs}])
+=  (1-\Pr[L_{ijh}&lt;L_{ijs}]).P^y_{jt}\beta^y_{ij}   \left(1 -
+{L_{ijs}}.\frac{1}{\beta^l_{ij} \bar L_{ijt}}\right) \]</span></p>
+<p>With an assumption of full irrigation of crop area from this point
+on, and known future water prices <span class="math inline">\(P_{it}^w =
+P_{im}^w\)</span>:</p>
+<p><span class="math display">\[ \sum_{t=s}^h  \mathbf{E}_{t=s}
+\left[{w_{ijt}} \right] (\beta^{c1}_{ij} + P^s_{it} ) =
+P^y_{jt}\beta^y_{ij}   \left(1 - {L_{ijs}}.\frac{1}{\beta^l_{ij} \bar
+L_{ijt}}\right) \]</span></p>
+<p><span class="math display">\[ W_{ijs} = w_{ijs} \beta^l_{ij} \bar
+L_{ijt}\left( 1 - \frac{\sum_{t=s}^h  \mathbf{E}_{t=s} \left[{w_{ijt}}
+\right] (\beta^{c1}_{ij} + P^w_{is}
+)}{P^y_{jt}\beta^y_{ij}}   \right)\]</span></p>
+<p><span class="math display">\[0 \leq W_{ijs} \leq L_{ij,s-1}w_{ijs}
+\]</span></p>
+<ul>
+<li>Crop planted area FOC / land demand function (annuals):</li>
+</ul>
+<p><span class="math display">\[\frac{\partial \pi_{it}}{\partial
+L_{ijm}} = 0, 0 \leq L_{ijm} \leq \bar L\]</span></p>
+<p><span class="math display">\[\mathbf{E_{t=m}} \left[ \beta^{c0}_{ijt}
++ \sum_{t=m}^{h}  {w_{ijt}}(\beta^{c1}_{ij} + P^w_{it} )  \right] =
+\mathbf{E}_{t=m}\left[ P^y_{jt}\beta^y_{ij}   \left(1 -
+{L_{ijh}}.\frac{1}{\beta^l_{ij}}\right) \right] \]</span></p>
+<p><span class="math display">\[ \beta^{c0}_{ijt} +
+\sum_{t=m}^{h}  \mathbf{E_{t=s}} \left[{w_{ijt}}(\beta^{c1}_{ij} +
+P^w_{it} )  \right].(1-\Pr[L_{ijt}&lt;L_{ijs}])
+=  P^y_{jt}\beta^y_{ij}   \left(1 -
+\frac{{L_{ijh}}}{\beta^l_{ij}}\right).(1-\Pr[L_{ijh}&lt;L_{ijm}])  \]</span></p>
+<p>With an assumption of full irrigation of crop area to harvest time
+(i.e., <span class="math inline">\(\Pr[L_{ijh}&lt;L_{ijm}] = 0\)</span>)
+and known future water prices <span class="math inline">\(P_{it}^w =
+P_{im}^w\)</span>:</p>
+<p><span class="math display">\[ \beta^{c0}_{ijt} +
+\sum_{t=m}^{h}  \mathbf{E_{t=s}} \left[{w_{ijt}} \right](\beta^{c1}_{ij}
++ P^w_{it} )  =  P^y_{jt}\beta^y_{ij}   \left(1 -
+\frac{{L_{ijh}}}{\beta^l_{ij} \bar L_{ijt}}\right)  \]</span></p>
+<p><span class="math display">\[ L_{ijs} =  \beta^l_{ij} \bar L_{ijt}
+\left( 1 - \frac{ \beta^{c0}_{ijt} + \sum_{t=m}^h  \mathbf{E}_{t=s}
+\left[{w_{ijt}} \right] (\beta^{c1}_{ij} + P^w_{im}
+)}{P^y_{jt}\beta^y_{ij}}  \right)\]</span></p>
+<p><span class="math display">\[0 \leq L_{ijs} \leq \bar L_{ijm}
+\]</span></p>
+<ul>
+<li>Other water use FOC / short-run other water demand function:</li>
+</ul>
+<p><span class="math display">\[\frac{\partial \pi_{it}}{\partial \tilde
+W_{ijt}} = 0  \]</span></p>
+<p><span class="math display">\[\tilde W_{it} = {\frac{1}{\beta^{\tilde
+w^1}_{im}}} \left( \beta^{\tilde w0}_{im} - P_{it}^w
+\right)\]</span></p>
+<h3 id="econometric-estimation-1">Econometric estimation</h3>
+<p>Given some starting values the parameters can be estimated using
+historical data. The problem can be set up as a non-linear least squares
+minimisation problem (see below). The objective function will require
+some weights <span class="math inline">\(\delta\)</span> to normalise
+the different variables, one option is to set the weights as the inverse
+of the standard deviation of the target variable.</p>
+<p>Note that the land use equation is different for annuals and
+perennials. For perennials we want to compare the max. of <span
+class="math inline">\(L^w\)</span> across the year with the observed
+(since <span class="math inline">\(L_w\)</span> will vary for different
+months within the year). For annual crops we want to compare the initial
+planted area (from the planting month <span
+class="math inline">\(m\)</span>) with the observed.</p>
+<p>We would probably need to exclude pasture data from the yield
+equation and error function.</p>
+<p><span class="math display">\[\begin{aligned} &amp;\epsilon^2 =
+\delta_W \sum_t \sum_i \sum_j \left( W_{ijt} - \sum_{m \in t} \hat
+W_{ijm}\right)^2  + \\    
+                  &amp;\left[ \delta_{L1} \sum_t \sum_i \sum_{j \in \dot
+J} \left( L_{ijt} - \hat L_{ijm}\right)^2 \right]_{j \in \dot J} +   \\
+                  &amp;\left[ \delta_{L2} \sum_t \sum_i \sum_{j \in \bar
+J, \tilde J} \left( L_{ijt} - \max_{m \in t} \hat L_{ijt}^w\right)^2
+\right]_{j \in \tilde J} + \\
+                  &amp;\delta_{Y}  \sum_t \sum_i \sum_j \left( Y_{ijt} -
+\hat Y_{ijt}\right)^2 + \\
+                  &amp;\delta_{\tilde W}  \sum_t \sum_i \left( \sum_j
+\tilde W_{ijt} - \sum_{m \in t} \hat {\tilde W}_{it}  \right)^2 + \\
+                  &amp;\delta_{D}  \sum_t \left( D_{it} - \hat
+{D}_{it}\right)^2 \end{aligned}
+\]</span></p>
+<p><span class="math display">\[\min_{ \vec {\beta}}
+\epsilon^2\]</span></p>
+<p><span class="math display">\[\vec {\beta} = \{ \beta^w_{ij},
+\beta^s_{ij}, \beta^y_{ij}, \beta^l_{ij}, \beta^{c0}_{ij},
+\beta^{c1}_{ij}, \beta^{d0}_{i}, \beta^{d1}_{i}, \beta^{\tilde w0}_{i},
+\beta^{\tilde w1}_{i} \} \]</span></p>
+<p>Subject to:</p>
+<p><span class="math display">\[\begin{aligned} \hat W_{ijm} &amp;
+=  w_{ijm} \beta_{ij}^l \bar L_{ijm}\left(1- \frac{(P_{it}^w +
+\beta^{c1}_{ijm}) w_{ijt}}{P^y_{jt} k_{mj}\beta^y_{ij} k^s_{ijm}}
+\right) &amp; \qquad j \in \bar J, \tilde J \\
+&amp; \qquad 0 \leq \hat W_{ijt} \leq \bar L_{ijt}w_{ijt} \qquad \qquad
+&amp; \qquad \text{ } \\ \\
+\hat L^w_{ijt} &amp;= \hat W_{ijt} / w_{ijt}  &amp; \qquad j \in \tilde
+J \\ \\
+\hat L_{ijm} &amp;= \beta^l_{ij} \bar L_{ijt} \left( 1 - \frac{
+\beta^c_{ijt} + \sum_{t=m}^h  \mathbf{E}_{t=m} \left[{w_{ijt}} \right]
+(\beta^{c1}_{ij} + P^w_{im} )}{P^y_{jt}\beta^y_{ij}}  \right) &amp;
+\qquad j \in {\dot J} \\
+&amp; \qquad 0 \leq L_{ijm} \leq \bar L_{ijt} \\ \\
+\hat W_{ijs} &amp;= w_{ijs} \beta^l_{ij} \bar L_{ijt} \left( 1 -
+\frac{\sum_{t=s}^h  \mathbf{E}_{t=s} \left[{w_{ijt}} \right]
+(\beta^{c1}_{ij} + P^w_{is} )}{P^y_{jt}\beta^y_{ij}}   \right) &amp;
+\qquad j \in {\dot J} \\
+\hat L_{ijs} &amp; = \hat W_{ijs} / w_{ijs}\\
+&amp; \qquad 0 \leq \hat W_{ijs} \leq \hat L_{ij,s-1}w_{ijs} \\ \\
+Y_{ijt} &amp;= f^y_{ij} \left (L_{ijh} \right) &amp; \qquad j \in {\dot
+J}\\
+Y_{ijt} &amp;= \sum_m  k_{mj} \Big(  \left(1 - k_{ijt}^s \right)
+f^y_{ijt} \left(\bar L_{ijt} \right)  +  k^s_{ijt}f^y_{ijt}
+\left(L^w_{ijt} \right) \Big) &amp; \qquad j \in {\tilde{J}, \bar J}\\
+&amp; Y_{ijt} \geq 0\\
+&amp; f^y_{ij} \left (L_{ijt} \right) = \beta^y_{ij} \left({L_{ijt}} -
+\frac{L^2_{ijt}}{2.\beta^l_{ij}\bar L_{ijt}}  \right) \\ \\
+\hat{\tilde W}_{it} &amp;= {\frac{1}{\beta^{\tilde w^1}_{i}}} \left(
+\beta^{\tilde w0}_{im} - P_{it}^w \right)\\
+\hat D_{it} &amp;= \beta^{d0}_{im} + \beta^{d1}_{im} (\hat W_{it} +
+\hat{ \tilde W}_{it})\\ \\
+\end{aligned}\]</span></p>
+<p>Notice that calculating the water and land use conditions for annual
+crops requires pre-computing expected <span
+class="math inline">\(w_{ijt}\)</span>. The easiest option is to
+calculate long-run average <span class="math inline">\(w_{ijm}\)</span>
+for every month and store this. Another option would be to estimate a
+conditional expectation for remaining months given knowledge of <span
+class="math inline">\(w_{its}\)</span> as a series of OLS regressions on
+the historical data (i.e., <span class="math inline">\(w_{ijt} = \beta_0
++ \beta_1.w_{ijs}\)</span>) storing the parameters.</p>
+<p>In future it may be worth setting some more constraints on the
+parameters such as:</p>
+<p><span class="math display">\[\beta &gt; 0, \text{ for all } \beta \in
+\vec{\beta}\]</span></p>
+<p><span class="math display">\[0.8 \leq \beta^w \leq 1.2 \]</span></p>
+<p><span class="math display">\[1 \leq \beta^l \]</span></p>
+<p>We may also want to allow some parameters to have a linear time
+trend, in which case the parameter <span
+class="math inline">\(\beta\)</span> in the above equations would be
+replaced with <span class="math inline">\(\beta_0\)</span> + <span
+class="math inline">\(\beta_1.t\)</span>. In other cases parameters need
+to vary monthly <span class="math inline">\((\beta_{im}^{d0},
+\beta_{im}^{d1}, \beta_{im}^{\tilde w0})\)</span>: these will need to be
+included in the above equations with monthly dummy variables.</p>
+<h2 id="model-based-aka-structural-estimation">Model-based (aka
+structural) estimation</h2>
+<p>To be added</p>
+<h2 id="solving-the-model">Solving the Model</h2>
+<h1 class="unnumbered" id="references">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+data-entry-spacing="0" role="list">
+<div id="ref-hughes2023economic" class="csl-entry" role="listitem">
+Hughes, Neal, Mihir Gupta, Linden Whittle, and Tim Westwood. 2023.
+<span>“An Economic Model of Spatial and Temporal Water Trade in the
+Australian Southern Murray-Darling Basin.”</span> <em>Water Resources
+Research</em> 59 (4): e2022WR032559.
+</div>
+</div>
+</body>
+</html>
