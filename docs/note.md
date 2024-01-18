@@ -78,35 +78,62 @@ Some useful background:
 | $K^c_{jm}$       |  Crop coefficient (monthly evapotranspiration factor) for crop $j$ in month $m$          |
 | $k^c_{jm}$       |  Relative crop coefficient                                                               | 
 | $k^s_{ijt}$      |  Potential water stress for crop $j$ in region $i$ in period $t$                         |
+| $\beta^{c0}_{j}$       |  Annual cost per Ha of crop planted                             |
+| $\beta^{c1}_{i}$       |   Cost of water use per ML (i.e. delivery cost)                  |
 
 ## Unknown parameters (to be estimated)
 
 | Parameter               | Description                                                     |
 |-------------------------|------------------------------------                             |
 | $\beta^w_{ij}$          |  Crop water requirements parameter                              |
-| $\beta^s_{ij}$          |  Crop water stress response parameter                           |
-| $\beta^y_{ij}$          |  Crop yield response (maximum potential crop yield)             |
-| $\beta^l_{ij}$          |  Crop yield response                                            |
-| $\beta^{c0}_{ij}$       |  Annual cost per Ha of crop planted                             |
-| $\beta^{c1}_{ij}$       |   Cost of water use per ML (i.e. delivery cost)                  |
+| $\beta^s_{j}$           |  Crop water stress response parameter                           |
+| $\beta^y_{j}$           |  Crop yield response (maximum potential crop yield)             |
+| $\beta^{l0}_{ij}$       |  Crop yield response (maximum potential crop area)              |
+| $\beta^{l1}_{ij}$       |  Crop yield response (maximum potential crop area time trend)   |
 | $\beta^{d0}_{i}$        |  Minimum (non-irrigation) water diversions                      |
 | $\beta^{d1}_{i}$        |  Diversions response to irrigation water use                    |
 | $\beta^{\tilde w0}_{i}$, $\beta^{\tilde w1}_{i}$|  Parameters for the net benefit of other water use function |
+
+## Sets
+
+| Crops, $j \in J$                        |  Subset                                         |
+|-----------------------------------------|------------------------------------             |
+| Tree crops (exc. almonds)               |  Perennial crops, $\bar J$                      |
+| Grapes                                  |  Perennial crops, $\bar J$                      |
+| Almonds                                 |  Perennial crops, $\bar J$                      |
+| Rice                                    |  Annual crops, $\dot J$                         |
+| Cotton                                  |  Annual crops, $\dot J$                         |
+| Pasture                                 |  Flexible, $\tilde J$                           |
+| Hay                                     |  Flexible, $\tilde J$                           |
+| Vegetables                              |  Flexible, $\tilde J$                           |
+| Other                                   |  Flexible, $\tilde J$                           |
+
+
+| Regions, $i \in I$                |  State   |  Trading Zone                 |
+|-----------------------------------|----------|--------------------           |
+| Goulburn-Broken                   |  Vic.    |  Northern Vic.                |
+| Loddon-Campaspe                   |  Vic.    |  Northern Vic.                |
+| Vic. Murray (above)               |  Vic.    |  Murray above                 |
+| Vic. Murray (below)               |  Vic.    |  Murray below                 |
+| NSW Murray (above)                |  NSW     |  Murray above                 |
+| NSW Murray (below)                |  NSW     |  Murray below                 |
+| SA Murray                         |  SA      |  Murray below                 |
+| Murrumbidgee                      |  NSW     |  Murrumbidgee                 |
+| Lower Darling                     |  NSW     |  Lower Darling                |
 
 
 # Data 
 
 - For now regions can be the same as the previous ABARES model regions (catchment areas)
-- Crop types would be the same as previous ABARES model except with Other cereals, Other broadacre and Other crops combined into a single category
-- Crop coefficients could be the ones from QJ's study 
-  - For Rice we can add some soil moisture targets as follows:
-    - 50 mm in the crop planting month (October)
-    - -50mm in the last month (March)
+- Crop coefficients could be the ones from QJ's study
+  - For Rice and Cotton crop coefficients should be set to 0 before planting and after harvest.
 - Annual data for $W$, $L$, $Y$, $P^y$ and $P^w$ by region and crop can come from the ABARES catchment dataset. Some modifications may be required:
-  - Aggregating other cereals/broadacre and crops
-  - For Pasture we could try setting $Y$ to 1, and $P^y$ equal to a fodder price index
-  - For other crops we could set $P_y$ to the price of wheat, then divide GVIAP for these activities by $P_y$ to derive a quantity index....
-- Monthly ET and ER data to be provided by UoM. Hoping UoM can also provide run-off data which we can subtract from ER.
+  - Aggregating other cereals/broadacre and other crops
+  - For Pasture we could try setting $Y$ to 1* $L$, and $P^y$ equal to the Dairy Australia Forage Value index
+    - Fodder price of $X per HA 
+  - For other crops we could set $P_y$ to the price of wheat, then divide GVIAP for these activities by $P_y$ to derive a quantity index (although they may already have a price for this)
+- Monthly ET and ER data to be provided by UoM. 
+  - We will need to adjust ER by setting some upper bound per month (above which we assume water is lost to run-off)
 - Monthly data on water usage $U$ to come from state water accounting data (still not yet available for SA)
   - Still yet to confirm if this usage includes usage against environmental entitlements
 
@@ -130,9 +157,11 @@ $$w_{ijt} = \frac{1}{100}.\beta^{w}_{ijt} \max \left({K^c_{jm}ET^0_{it} - ER_{it
 
 Here $K^c_{ijt}$ are pre-defined 'crop coefficients' and ${ET}^0_{it}$ is the reference ET for region $i$ in period $t$ (with both $ET^0_{ijt}$, and ${ER}_{it}$ being exogenous functions of weather data). Following hydrological model conventions, crop water requirements $K^c_{jm}ET^0_{ijt} - ER_{it}$ are defined in mm units (and converted to ML by dividing by 100).
 
-This approach differs from official hydrological models (i.e., Murray SOURCE model) in two key respects: the time-step is monthly rather than daily and there is no explicit soil moisture balance. While recent research (QJ etc.) has shown this simple approach can achieve reasonable performance, some adjustments are adopted to improve accuracy further. Firstly, ER data used adjusted to remove estimated monthly run-off. Secondly, for rice crops water requirements are adjusted to account for poundage, by adding a soil moisture recharge / depletion target:
+This approach differs from official hydrological models (i.e., Murray SOURCE model) in two key respects: the time-step is monthly rather than daily and there is no explicit soil moisture balance. While recent research (QJ etc.) has shown this simple approach can achieve reasonable performance, some adjustments are adopted to improve accuracy further. Firstly, ER data are adjusted to remove estimated monthly run-off. Secondly, for rice crops water requirements are adjusted to account for pondage, by adding a soil moisture recharge / depletion target:
 
 $$w_{ijt} = \frac{1}{100}.\beta^{w}_{ijt} \max \left({K^c_{jm}ET^0_{it} + SM_{jt} - ER_{it},   }, 0\right) $$ 
+
+With $SM_{jt}$ set to + 50mm in the planting month (October) and - 50mm in the harvest month (March).
 
 Note that this approach does not allow for deficit irrigation where water application rates are less than the target rate $w_{ijt}$. However, as detailed below there is flexibility to vary the area irrigated (to only irrigate a portion of the planted area) as outlined below.
 
